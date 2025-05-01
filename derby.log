@@ -1,0 +1,27 @@
+Thu May 01 09:39:41 CAT 2025 : Apache Derby Network Server - 10.10.2.0 - (1582446) started and ready to accept connections on port 1527
+----------------------------------------------------------------
+Thu May 01 09:42:48 CAT 2025:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.10.2.0 - (1582446): instance a816c00e-0196-8ac9-75f1-00006112e007 
+on database directory C:\Users\Tk\Documents\Netbeans 11.3 Projects\Databases\SWP-G9 Hospital DB with class loader sun.misc.Launcher$AppClassLoader@1d44bcfa 
+Loaded from file:/C:/Users/Tk/Documents/DERBY/For%20Java%201.4%20and%20Higher/db-derby-10.10.2.0-bin/lib/derby.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_211-b12
+user.dir=C:\Users\Tk\Documents\DERBY\For Java 1.4 and Higher\db-derby-10.10.2.0-bin
+os.name=Windows 10
+os.arch=amd64
+os.version=10.0
+derby.system.home=C:\Users\Tk\Documents\Netbeans 11.3 Projects\Databases
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Thu May 01 09:58:08 CAT 2025:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.10.2.0 - (1582446): instance 6839c016-0196-8ac9-75f1-00006112e007 
+on database directory C:\Users\Tk\Documents\Netbeans 11.3 Projects\Databases\ClassList_DB with class loader sun.misc.Launcher$AppClassLoader@1d44bcfa 
+Loaded from file:/C:/Users/Tk/Documents/DERBY/For%20Java%201.4%20and%20Higher/db-derby-10.10.2.0-bin/lib/derby.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_211-b12
+user.dir=C:\Users\Tk\Documents\DERBY\For Java 1.4 and Higher\db-derby-10.10.2.0-bin
+os.name=Windows 10
+os.arch=amd64
+os.version=10.0
+derby.system.home=C:\Users\Tk\Documents\Netbeans 11.3 Projects\Databases
+Database Class Loader started - derby.database.classpath=''
