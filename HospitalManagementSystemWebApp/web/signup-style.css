@@ -1,0 +1,102 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: aqua;
+    background: url(pexels-eberhardgross-691668.jpg);
+    background-size: cover;
+    background-position: center;
+}
+
+.signup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    background-blend-mode:saturation;
+}
+
+.signup-surface {
+    width: 400px; 
+    padding: 30px; 
+    border-radius: 8px; 
+    color: aliceblue;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); 
+    padding: 30px 40px; 
+    background: transparent;
+}
+
+.signup-surface h1 {
+    text-align: center;
+    font-size: 2rem; 
+    margin-bottom: 20px;
+    color: rgb(245, 245, 245);
+}
+
+.input-dialog {
+    position: relative; 
+    margin-bottom: 20px;                    
+}
+
+.input-dialog input {
+    width: 100%;
+    padding: 10px 40px 10px 10px; 
+    border: 2px solid #ccc; 
+    border-radius: 5px;
+    outline: none;
+    color: rgb(255, 255, 255);
+    border-radius: 25px;
+    background-color: rgb(0, 0, 0);
+    opacity: 60%;
+}
+
+.input-dialog input:focus {
+    border-color: springgreen; 
+}
+
+.input-dialog i {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: #ccc;
+    
+}
+
+
+.login-link {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.login-link a {
+    color: springgreen;
+    text-decoration: none;
+}
+
+.btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: springgreen;
+    color: rgb(0, 89, 255);
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    
+}
+
+.btn:hover {
+    box-shadow: 0 0 10px white;
+}
