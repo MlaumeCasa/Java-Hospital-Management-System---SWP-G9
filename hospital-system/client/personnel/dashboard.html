@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Personnel Dashboard</title>
+  <link rel="stylesheet" href="css/Booking-styles.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    section {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .section-header {
+      font-size: 1.5em;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 5px;
+    }
+    .appointments, .emergencies {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .appointment, .emergency {
+      border-bottom: 1px dashed #999;
+      padding: 10px 0;
+    }
+    .appointment:last-child, .emergency:last-child {
+      border-bottom: none;
+    }
+    button {
+      margin-top: 10px;
+      padding: 8px 12px;
+      font-size: 1em;
+      border: none;
+      border-radius: 4px;
+      background-color: #007bff;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Personnel Dashboard</h1>
+  
+  <section>
+    <div class="section-header">Scheduled Appointments</div>
+    <div id="appointmentsContainer" class="appointments">
+      <!-- Appointments will load here -->
+      <p>Loading appointments...</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">Reported Emergencies</div>
+    <div id="emergenciesContainer" class="emergencies">
+      <!-- Emergencies will load here -->
+      <p>Loading emergencies...</p>
+    </div>
+  </section>
+
+  <script src="js/personnel.js"></script>
+</body>
+</html>

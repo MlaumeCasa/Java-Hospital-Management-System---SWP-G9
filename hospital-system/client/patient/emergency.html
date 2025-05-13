@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergency | Hospital System</title>
+  <link rel="stylesheet" href="../css/Booking-styles.css">
+  <script src="../js/auth.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>Welcome to Hospital Management System</h1>
+    <div class="nav-container">
+      <nav>
+        <ul>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="appointment.html">Book Appointment</a></li>
+          <li><a href="emergency.html" class="active">Emergency</a></li>
+        </ul>
+      </nav>
+      <button id="logout-btn" class="logout-btn">Logout</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="emergency">
+      <h2>Emergency Service</h2>
+      <div class="emergency-alert">
+        <p class="warning">For life-threatening emergencies, please call emergency services immediately!</p>
+      </div>
+
+      <form id="emergency-form">
+        <div class="form-group">
+          <label for="emergency-type">Emergency Type:</label>
+          <select id="emergency-type" required>
+            <option value="">Select emergency type</option>
+            <option value="cardiac">Cardiac Emergency</option>
+            <option value="trauma">Trauma/Injury</option>
+            <option value="respiratory">Respiratory Distress</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Your Location:</label>
+          <p id="location-status">Fetching your location...</p>
+          <input type="hidden" id="latitude">
+          <input type="hidden" id="longitude">
+        </div>
+
+        <button type="submit" class="btn emergency-btn" disabled>Request Emergency Assistance</button>
+      </form>
+
+      <div id="emergency-result" class="result-message"></div>
+    </section>
+
+    <section class="active-emergencies">
+      <h2>Your Active Emergency Requests</h2>
+      <div id="active-emergencies-list">
+        <p>Loading active emergency requests...</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Hospital Management System</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check if user is authenticated
+      if (!await checkAuth()) {
+        return;
+      }
+
+      // Get location
+      const locationStatus = document.getElementById('location-status');
+      const latitudeInput = document.getElementById('latitude');
+      const longitudeInput = document.getElementById('longitude');
+      const emergencyBtn = document.querySelector('.emergency-btn');
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            latitudeInput.value = latitude;
+            longitudeInput.value = longitude;
+            locationStatus.textContent = 'Location acquired successfully';
+            locationStatus.classList.add('success');
+            emergencyBtn.disabled = false;
+          },
+          (error) => {
+            locationStatus.textContent = `Error getting location: ${error.message}`;
+            locationStatus.classList.add('error');
+          }
+        );
+      } else {
+        locationStatus.textContent = 'Geolocation is not supported by this browser';
+        locationStatus.classList.add('error');
+      }
+
+      // Load active emergencies
+      const loadActiveEmergencies = async () => {
+        const { user } = await getUser();
+        
+        // Note: We're using the same endpoint to fetch emergencies, but client-side filtering
+        // In a real application, you'd have a dedicated endpoint for patient emergencies
+        const { success, emergencies } = await getEmergencies().catch(() => {
+          return { success: false, emergencies: [] };
+        });
+        
+        const activeEmergenciesList = document.getElementById('active-emergencies-list');
+        
+        if (success && emergencies && emergencies.length > 0) {
+          // Filter for this patient's emergencies and active statuses
+          const patientEmergencies = emergencies.filter(emergency => 
+            emergency.patient._id === user._id || emergency.patient === user._id
+          );
+          
+          if (patientEmergencies.length === 0) {
+            activeEmergenciesList.innerHTML = '<p>No active emergency requests.</p>';
+            return;
+          }
+          
+          activeEmergenciesList.innerHTML = `
+            <table>
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Requested</th>
+                  <th>Crew Assigned</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${patientEmergencies.map(emergency => `
+                  <tr>
+                    <td>${emergency.emergencyType}</td>
+                    <td class="status-${emergency.status}">${emergency.status}</td>
+                    <td>${new Date(emergency.createdAt).toLocaleString()}</td>
+                    <td>${emergency.crew ? 'Yes' : 'Not yet'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        } else {
+          activeEmergenciesList.innerHTML = '<p>No active emergency requests.</p>';
+        }
+      };
+
+      await loadActiveEmergencies();
+
+      // Handle emergency request
+      document.getElementById('emergency-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const emergencyType = document.getElementById('emergency-type').value;
+        const latitude = parseFloat(document.getElementById('latitude').value);
+        const longitude = parseFloat(document.getElementById('longitude').value);
+        
+        if (!emergencyType || isNaN(latitude) || isNaN(longitude)) {
+          alert('Please select emergency type and allow location access');
+          return;
+        }
+        
+        // Coordinates in [longitude, latitude] format for GeoJSON
+        const coordinates = [longitude, latitude];
+        
+        // Create emergency
+        const { success, emergency, message } = await createEmergency(coordinates, emergencyType);
+        
+        const resultElement = document.getElementById('emergency-result');
+        if (success) {
+          resultElement.innerHTML = 'Emergency request sent successfully! Help is on the way.';
+          resultElement.className = 'result-message success';
+          
+          // Clear form
+          document.getElementById('emergency-form').reset();
+          
+          // Reload active emergencies
+          await loadActiveEmergencies();
+          
+          // Reload page after a delay
+          setTimeout(() => {
+            window.location.reload();
+          }, 5000);
+        } else {
+          resultElement.innerHTML = `Emergency request failed: ${message}`;
+          resultElement.className = 'result-message error';
+        }
+      });
+
+      // Logout button
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        logout();
+      });
+    });
+  </script>
+</body>
+</html>

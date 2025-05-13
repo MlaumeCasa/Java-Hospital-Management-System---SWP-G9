@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Appointment | Hospital System</title>
+  <link rel="stylesheet" href="../css/Booking-styles.css">
+  <script src="../js/auth.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>Welcome to Hospital Management System</h1>
+    <div class="nav-container">
+      <nav>
+        <ul>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="appointment.html" class="active">Book Appointment</a></li>
+          <li><a href="emergency.html">Emergency</a></li>
+        </ul>
+      </nav>
+      <button id="logout-btn" class="logout-btn">Logout</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="appointment-booking">
+      <h2>Book an Appointment</h2>
+      <form id="appointment-form">
+        <div class="form-group">
+          <label for="appointment-date">Date:</label>
+          <input type="date" id="appointment-date" required>
+        </div>
+
+        <div class="form-group">
+          <label for="appointment-time">Time:</label>
+          <select id="appointment-time" required>
+            <option value="">Select a time</option>
+            <option value="09:00">9:00 AM</option>
+            <option value="10:00">10:00 AM</option>
+            <option value="11:00">11:00 AM</option>
+            <option value="13:00">1:00 PM</option>
+            <option value="14:00">2:00 PM</option>
+            <option value="15:00">3:00 PM</option>
+            <option value="16:00">4:00 PM</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn primary-btn">Book Appointment</button>
+      </form>
+
+      <div id="booking-result" class="result-message"></div>
+    </section>
+
+    <section class="upcoming-appointments">
+      <h2>Your Upcoming Appointments</h2>
+      <div id="appointments-list">
+        <p>Loading appointments...</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Hospital Management System</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check if user is authenticated
+      if (!await checkAuth()) {
+        return;
+      }
+
+      // Set min date to today
+      const dateInput = document.getElementById('appointment-date');
+      const today = new Date();
+      const formattedToday = today.toISOString().split('T')[0];
+      dateInput.min = formattedToday;
+      
+      // Set default date to today
+      dateInput.value = formattedToday;
+
+      // Get appointments
+      const { success: appointmentsSuccess, appointments } = await getAppointments();
+      if (appointmentsSuccess) {
+        const appointmentsListElement = document.getElementById('appointments-list');
+        
+        if (appointments.length === 0) {
+          appointmentsListElement.innerHTML = '<p>No appointments scheduled.</p>';
+        } else {
+          // Filter only upcoming appointments
+          const upcomingAppointments = appointments.filter(appointment => 
+            new Date(appointment.appointmentTime) > new Date() && 
+            appointment.status !== 'cancelled'
+          );
+          
+          if (upcomingAppointments.length === 0) {
+            appointmentsListElement.innerHTML = '<p>No upcoming appointments.</p>';
+          } else {
+            appointmentsListElement.innerHTML = `
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${upcomingAppointments.map(appointment => `
+                    <tr>
+                      <td>${new Date(appointment.appointmentTime).toLocaleDateString()}</td>
+                      <td>${new Date(appointment.appointmentTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                      <td>${appointment.status}</td>
+                      <td>
+                        ${appointment.status === 'scheduled' ? 
+                          `<button class="cancel-btn" data-id="${appointment._id}">Cancel</button>` : 
+                          ''}
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            `;
+            
+            // Add event listeners to cancel buttons
+            document.querySelectorAll('.cancel-btn').forEach(button => {
+              button.addEventListener('click', async () => {
+                const id = button.getAttribute('data-id');
+                const { success } = await updateAppointment(id, 'cancelled');
+                
+                if (success) {
+                  alert('Appointment cancelled successfully');
+                  window.location.reload();
+                }
+              });
+            });
+          }
+        }
+      }
+
+      // Handle appointment booking
+      document.getElementById('appointment-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const date = document.getElementById('appointment-date').value;
+        const time = document.getElementById('appointment-time').value;
+        
+        if (!date || !time) {
+          alert('Please select both date and time');
+          return;
+        }
+        
+        // Combine date and time
+        const appointmentTime = new Date(`${date}T${time}`);
+        
+        // Book appointment
+        const { success, appointment, message } = await createAppointment(appointmentTime);
+        
+        const resultElement = document.getElementById('booking-result');
+        if (success) {
+          resultElement.innerHTML = 'Appointment booked successfully!';
+          resultElement.className = 'result-message success';
+          
+          // Clear form
+          document.getElementById('appointment-form').reset();
+          
+          // Reload page after a delay
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        } else {
+          resultElement.innerHTML = `Booking failed: ${message}`;
+          resultElement.className = 'result-message error';
+        }
+      });
+
+      // Logout button
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        logout();
+      });
+    });
+  </script>
+</body>
+</html>
