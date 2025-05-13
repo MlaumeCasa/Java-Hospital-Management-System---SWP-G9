@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Dashboard | Hospital System</title>
+  <link rel="stylesheet" href="../css/Booking-styles.css">
+  <script src="../js/auth.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>Welcome to Hospital Management System</h1>
+    <div class="nav-container">
+      <nav>
+        <ul>
+          <li><a href="dashboard.html" class="active">Dashboard</a></li>
+          <li><a href="appointment.html">Book Appointment</a></li>
+          <li><a href="emergency.html">Emergency</a></li>
+        </ul>
+      </nav>
+      <button id="logout-btn" class="logout-btn">Logout</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="dashboard">
+      <h2>Patient Dashboard</h2>
+      <div class="user-info">
+        <h3>Your Information</h3>
+        <div id="user-details">
+          <p>Loading user details...</p>
+        </div>
+      </div>
+
+      <div class="appointments">
+        <h3>Your Appointments</h3>
+        <div id="appointments-list">
+          <p>Loading appointments...</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Hospital Management System</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check if user is authenticated
+      if (!await checkAuth()) {
+        return;
+      }
+
+      // Get user details
+      const { success, user } = await getUser();
+      if (success) {
+        const userDetailsElement = document.getElementById('user-details');
+        userDetailsElement.innerHTML = `
+          <p><strong>Email:</strong> ${user.email}</p>
+          <p><strong>Role:</strong> ${user.role}</p>
+          <p><strong>Joined:</strong> ${new Date(user.createdAt).toLocaleDateString()}</p>
+        `;
+      }
+
+      // Get appointments
+      const { success: appointmentsSuccess, appointments } = await getAppointments();
+      if (appointmentsSuccess) {
+        const appointmentsListElement = document.getElementById('appointments-list');
+        
+        if (appointments.length === 0) {
+          appointmentsListElement.innerHTML = '<p>No appointments scheduled.</p>';
+        } else {
+          appointmentsListElement.innerHTML = `
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${appointments.map(appointment => `
+                  <tr>
+                    <td>${new Date(appointment.appointmentTime).toLocaleDateString()}</td>
+                    <td>${new Date(appointment.appointmentTime).toLocaleTimeString()}</td>
+                    <td>${appointment.status}</td>
+                    <td>
+                      ${appointment.status === 'scheduled' ? 
+                        `<button class="cancel-btn" data-id="${appointment._id}">Cancel</button>` : 
+                        ''}
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+          
+          // Add event listeners to cancel buttons
+          document.querySelectorAll('.cancel-btn').forEach(button => {
+            button.addEventListener('click', async () => {
+              const id = button.getAttribute('data-id');
+              const { success } = await updateAppointment(id, 'cancelled');
+              
+              if (success) {
+                alert('Appointment cancelled successfully');
+                window.location.reload();
+              }
+            });
+          });
+        }
+      }
+
+      // Logout button
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        logout();
+      });
+    });
+  </script>
+</body>
+</html>
